@@ -57,7 +57,7 @@ class KPO():
         set.
         ------------------------------------------------------------------- '''
 
-    def __init__(self, fname=None, array=None, ndgt=5, bmax=None, ID=""):
+    def __init__(self, fname=None, array=None, ndgt=5, bmax=None, ID="",offset=0.0):
         ''' Default instantiation of a KerPhase_Relation object:
 
         -------------------------------------------------------------------
@@ -68,6 +68,7 @@ class KPO():
         # Default instantiation.
         self.kpi = kpi.KPI(fname=fname, array=array,
                            ndgt=ndgt, bmax=bmax, ID=ID)
+        self.offset = offset
 
         self.TARGET = [] # source names
         self.CVIS   = [] # complex visibilities
@@ -78,9 +79,9 @@ class KPO():
         
         # if the file is a complete (kpi + kpd) structure
         # additional data can be loaded.
-        try:
+        if (fname is not None) and ('.fits' in fname):
             hdul = fits.open(fname)
-        except:
+        else:
             print("File provided is not a fits file")
             #raise UserWarning("File provided is not a fits file")
             return
@@ -283,7 +284,7 @@ class KPO():
         if m2pix != self.M2PIX:
             print("First time for m2pix = %.2f: " % (m2pix,))
             print("LDFT1: Computing new Fourier matrix...")
-            self.FF = core.compute_DFTM1(self.kpi.UVC, m2pix, ISZ)
+            self.FF = core.compute_DFTM1(self.kpi.UVC, m2pix, ISZ,offset=self.offset)
             print("Done!")
             
         myft_v = self.FF.dot(image.flatten())
@@ -351,7 +352,7 @@ class KPO():
 
         except:
             if m2pix is not None:
-                self.FF = core.compute_DFTM1(self.kpi.UVC, m2pix, ISZ)
+                self.FF = core.compute_DFTM1(self.kpi.UVC, m2pix, ISZ,offset=self.offset)
             else:
                 print("Fourier matrix and/or m2pix are not available.")
                 print("Please compute Fourier matrix.")

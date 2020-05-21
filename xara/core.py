@@ -541,7 +541,7 @@ def compute_DFTM2(coords, m2pix, isz, axis=0):
 
 # =========================================================================
 # =========================================================================
-def compute_DFTM1(coords, m2pix, isz, inv=False, dprec=True):
+def compute_DFTM1(coords, m2pix, isz, inv=False, dprec=True, offset=0):
     ''' ------------------------------------------------------------------
     Single-sided DFT matrix to be used with the "LDFT1" extraction method,
     DFT matrix computed for exact u (or v) coordinates.
@@ -580,7 +580,7 @@ def compute_DFTM1(coords, m2pix, isz, inv=False, dprec=True):
     if dprec is True:
         mydtype = np.complex128
         
-    xx,yy = np.meshgrid(np.arange(isz)-isz/2, np.arange(isz)-isz/2)
+    xx,yy = np.meshgrid(np.arange(isz)-isz/2 + offset, np.arange(isz)-isz/2 + offset)
     uvc   = coords * m2pix
     nuv   = uvc.shape[0]
 
@@ -660,7 +660,7 @@ def uv_phase_regrid_matrix(UVD, UVS, rad):
 def create_discrete_model(apert, ppscale, step, binary=True, tmin=0.8):
     '''------------------------------------------------------------------
 
-    Create the discrete (square grid) model of a provited aperture later
+    Create the discrete (square grid) model of a provided aperture later
     used to build a kernel model.
     
     Parameters:

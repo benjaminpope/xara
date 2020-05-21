@@ -401,6 +401,7 @@ class KPI(object):
             self.RED  = data['RED']
             self.KPM  = data['KerPhi']
             self.TFM  = data['TFM']
+            self.TRM  = data['mask'][:,2]
         
             self.nbap  = self.VAC.shape[0]
             self.nbuv = self.UVC.shape[0]
@@ -461,9 +462,13 @@ class KPI(object):
         ax0 = plt.subplot(121)
 
         s1, s2 = ssize**2, (ssize/2)**2
-        ax0.scatter(self.VAC[:,0], self.VAC[:,1], s=s1, c=self.VAC[:,2],
-                    cmap=cmap, alpha=alpha, marker=marker, lw=lw,
-                    vmin=0.0, vmax=1.0)
+        if np.min(self.VAC[:,2])<1:
+            ax0.scatter(self.VAC[:,0], self.VAC[:,1], s=s1, c=self.VAC[:,2],
+                        cmap=cmap, alpha=alpha, marker=marker, lw=lw,
+                        vmin=0.0, vmax=1.0)
+        else:
+            ax0.scatter(self.VAC[:,0], self.VAC[:,1], s=s1, c=self.VAC[:,2],
+                        cmap=cmap, alpha=alpha, marker=marker, lw=lw)
         ax0.axis([-xymax, xymax, -xymax, xymax], aspect='equal')
         ax0.set_xlabel("Aperture x-coordinate (meters)")
         ax0.set_ylabel("Aperture y-coordinate (meters)")
