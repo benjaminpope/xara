@@ -162,11 +162,16 @@ def binary_model(params, kpi, hdr, vis2=False, deg=True):
     filter = hdr['filter']
     
     testPhi = phase_binary(kpi.uv[:,0], kpi.uv[:,1], filter, params2, deg)
-    res = np.dot(kpi.KerPhi, testPhi)
 
     if vis2:
         res = vis2_binary(kpi.uv[:,0], kpi.uv[:,1], filter, params2, deg)
+        return res
+    res = np.dot(kpi.KerPhi, testPhi)
+
     return res
+
+def binary_KPD_model(kpo,params):
+    return kpo.kpd_binary_model(params,0,"KERNEL")[0]
 
 # =========================================================================
 # =========================================================================

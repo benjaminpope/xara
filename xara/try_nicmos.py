@@ -45,7 +45,7 @@ a.save_to_file('./hst.kpi.gz')
 # n8yj59010_mos.fits.gz and 'n8yj59020_mos.fits.gz
 
 a = xara.KPO('./hst.kpi.gz')
-a.extract_KPD(ddir+'/n8yj59010_mos.fits.gz', plotim=True, wrad=50)
+a.extract_KPD(ddir+'/n8yj59010_mos.fits.gz', wrad=50)
 a.kpi.name = "2M XXXX-XX" #  # labels the data
 
 # ---------------------------------------
@@ -69,8 +69,10 @@ import xara.fitting as fit
 # be used to determine uncertainties on the fit.
 
 params0 = [150.0, 80.0, 2.0]    # initial parameters for model-fit
-optim   = fit.binary_KPD_fit(a, params0)
+optim   = a.binary_model_fit(params0)
 params  = optim[0]    # best fit parameters (after least square)
+
+a.kpd = a.KPDT[0][0]
 
 # -------------------
 # 3. correlation plot

@@ -703,7 +703,7 @@ class KPO():
                                              algo="BCEN", verbose=False,
                                              wmin=2.0*spix)
 
-            x1, y1 = x0-isz/2, y0-isz/2
+            x1, y1 = int(x0-isz/2), int(y0-isz/2)
             img = data[jj,y1:y1+isz, x1:x1+isz] # image is now (isz x isz)
             dy, dx   = (y0-ysz/2), (x0-xsz/2)
 
@@ -712,8 +712,12 @@ class KPO():
                                              algo="BCEN", verbose=False,
                                              wmin=2.0*spix)
             
-            #img = core.recenter(data[jj], sg_rad=50, verbose=False)
-            img = img[192:320,192:320] # from 512x512 -> 128x128
+            img = core.recenter(data[jj],verbose=False)
+            nx,ny = img.shape
+            limsx = int(nx/2-64), int(nx/2+64)
+            limsy = int(ny/2-64), int(ny/2+64)
+            img = img[limsx[0]:limsx[1],limsy[0]:limsy[1]] # from 512x512 -> 128x128
+
             temp = self.extract_cvis_from_img(img, m2pix, method)
             cvis.append(temp)
             kpdata.append(self.kpi.KPM.dot(np.angle(temp)))
