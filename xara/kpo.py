@@ -281,7 +281,7 @@ class KPO():
         ------------------------------------------------------------------- '''
         ISZ = image.shape[0]
 
-        if m2pix != self.M2PIX:
+        if np.abs(m2pix - self.M2PIX)>1e-5:
             print("First time for m2pix = %.2f: " % (m2pix,))
             print("LDFT1: Computing new Fourier matrix...")
             self.FF = core.compute_DFTM1(self.kpi.UVC, m2pix, ISZ,offset=self.offset)
@@ -688,44 +688,48 @@ class KPO():
             self.sgmask  = core.super_gauss(ysz, xsz, ysz/2, xsz/2, wrad)
 
         for ii in range(nf):
+            # try:
             hdul = fits.open(fnames[ii])
 
-        nslice = 1
-        if hdul['SCI'].header['NAXIS'] == 3:
-            nslice = hdul['SCI'].header['NAXIS3']
+            nslice = 1
+            if hdul['SCI'].header['NAXIS'] == 3:
+                nslice = hdul['SCI'].header['NAXIS3']
 
-        data = hdul['SCI'].data.reshape((nslice, ysz, xsz))
-                
-        # ---- extract the Fourier data ----
-        for jj in range(nslice):
-            # images must first be chopped down to reasonable size
-            (x0, y0) = core.determine_origin(data[jj], mask=self.sgmask,
-                                             algo="BCEN", verbose=False,
-                                             wmin=2.0*spix)
+            data = hdul['SCI'].data.reshape((nslice, ysz, xsz))
+                    
+            # ---- extract the Fourier data ----
+            for jj in range(nslice):
+                    print("File %s, slice %2d" % (fnames[ii], jj+1))
 
-            x1, y1 = int(x0-isz/2), int(y0-isz/2)
-            img = data[jj,y1:y1+isz, x1:x1+isz] # image is now (isz x isz)
-            dy, dx   = (y0-ysz/2), (x0-xsz/2)
+                    # images must first be chopped down to reasonable size
+                    (x0, y0) = core.determine_origin(data[jj], mask=self.sgmask,
+                                                     algo="BCEN", verbose=False,
+                                                     wmin=2.0*spix)
 
-            self.sgmask = core.super_gauss(isz, isz, isz/2, isz/2, wrad)
-            (x0, y0) = core.determine_origin(img, mask=self.sgmask,
-                                             algo="BCEN", verbose=False,
-                                             wmin=2.0*spix)
-            
-            img = core.recenter(data[jj],verbose=False)
-            nx,ny = img.shape
-            limsx = int(nx/2-64), int(nx/2+64)
-            limsy = int(ny/2-64), int(ny/2+64)
-            img = img[limsx[0]:limsx[1],limsy[0]:limsy[1]] # from 512x512 -> 128x128
+                    x1, y1 = int(x0-isz/2), int(y0-isz/2)
+                    img = data[jj,y1:y1+isz, x1:x1+isz] # image is now (isz x isz)
+                    dy, dx   = (y0-ysz/2), (x0-xsz/2)
 
-            temp = self.extract_cvis_from_img(img, m2pix, method)
-            cvis.append(temp)
-            kpdata.append(self.kpi.KPM.dot(np.angle(temp)))
-            print("File %s, slice %2d" % (fnames[ii], jj+1))
-            
-            mjdate.append(hdul['SCI'].header['ROUTTIME'])
-            detpa.append(hdul[0].header['ORIENTAT'])
-        hdul.close()
+                    self.sgmask = core.super_gauss(isz, isz, isz/2, isz/2, wrad)
+                    (x0, y0) = core.determine_origin(img, mask=self.sgmask,
+                                                     algo="BCEN", verbose=False,
+                                                     wmin=2.0*spix)
+                    
+                    img = core.recenter(data[jj],verbose=False)
+                    nx,ny = img.shape
+                    limsx = int(nx/2-64), int(nx/2+64)
+                    limsy = int(ny/2-64), int(ny/2+64)
+                    img = img[limsx[0]:limsx[1],limsy[0]:limsy[1]] # from 512x512 -> 128x128
+
+                    temp = self.extract_cvis_from_img(img, m2pix, method)
+                    cvis.append(temp)
+                    kpdata.append(self.kpi.KPM.dot(np.angle(temp)))
+                    
+                    mjdate.append(hdul['SCI'].header['ROUTTIME'])
+                    detpa.append(hdul[0].header['ORIENTAT'])
+            hdul.close()
+            # except:
+            #     print('failed on',fnames[ii])
 
         self.CWAVEL = cwavel
         self.PSCALE = pscale

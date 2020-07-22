@@ -171,7 +171,7 @@ def binary_model(params, kpi, hdr, vis2=False, deg=True):
     return res
 
 def binary_KPD_model(kpo,params):
-    return kpo.kpd_binary_model(params,0,"KERNEL")[0]
+    return kpo.kpd_binary_model(params,0,"KERNEL")
 
 # =========================================================================
 # =========================================================================
@@ -185,7 +185,10 @@ def binary_KPD_fit_residuals(params, kpo, kpdt, kpde=None):
     - kpdt : a (calibrated) vector of kernel-phases
     - kpde : associated vector of kernel-phase uncertainties
     '''
-    model = kpo.kpd_binary_model(params, 0, "KERNEL")[0]
+    if kpdt.shape[0] == 1:
+        model = kpo.kpd_binary_model(params, 0, "KERNEL")
+    else:
+        model = kpo.kpd_binary_model(params, 0, "KERNEL")[0]
 
     err = kpdt - model
     if kpde is not None:
